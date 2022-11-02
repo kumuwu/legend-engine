@@ -26,17 +26,15 @@ import org.finos.legend.engine.protocol.pure.v1.model.packageableElement.persist
 import org.finos.legend.engine.protocol.pure.v1.model.packageableElement.persistence.persister.ingestmode.snapshot.BitemporalSnapshot;
 import org.finos.legend.engine.protocol.pure.v1.model.packageableElement.persistence.persister.ingestmode.snapshot.NontemporalSnapshot;
 import org.finos.legend.engine.protocol.pure.v1.model.packageableElement.persistence.persister.ingestmode.snapshot.UnitemporalSnapshot;
-import org.finos.legend.engine.protocol.pure.v1.model.packageableElement.persistence.persister.validitymilestoning.DateTimeValidityMilestoning;
-import org.finos.legend.engine.protocol.pure.v1.model.packageableElement.persistence.persister.validitymilestoning.derivation.SourceSpecifiesFromDateTime;
-import org.finos.legend.engine.protocol.pure.v1.model.packageableElement.persistence.persister.validitymilestoning.derivation.ValidityDerivation;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class IngestModeMapper
 {
     public static final String DIGEST_FIELD_DEFAULT = "DIGEST";
+    public static final long INFINITE_BATCH_ID = 999999999L;
+    public static final String INFINITE_BATCH_TIME = "9999-12-31 23:59:59.0";
 
     /*
     Mapper from Persistence model to IngestMode object
@@ -71,6 +69,12 @@ public class IngestModeMapper
     {
         IngestMode ingestMode = getIngestMode(persistence);
         return ingestMode.accept(IngestModeVisitors.EXTRACT_FIELDS_TO_EXCLUDE);
+    }
+
+    public static Map<String, Object> getMilestoningMap(Persistence persistence) throws Exception
+    {
+        IngestMode ingestMode = getIngestMode(persistence);
+        return ingestMode.accept(IngestModeVisitors.EXTRACT_MILESTONING_MAP);
     }
 
     public static boolean isTransactionMilestoningTimeBased(Persistence persistence) throws Exception
