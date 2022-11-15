@@ -148,8 +148,8 @@ public class PersistenceTestRunner implements TestRunner
     private IngestorResult invokePersistence(Dataset targetDataset, Persistence persistence, String testData,
                                              Connection connection) throws Exception
     {
-        Dataset stagingDataset = DatasetMapper.getStagingDataset(testData, purePersistence);
-        IngestMode ingestMode = IngestModeMapper.from(persistence, targetDataset, stagingDataset);
+        Datasets enrichedDatasets = DatasetMapper.enrichAndDeriveDatasets(persistence, targetDataset, testData);
+        IngestMode ingestMode = IngestModeMapper.from(persistence);
 
         RelationalIngestor ingestor = RelationalIngestor.builder()
                 .ingestMode(ingestMode)
@@ -159,8 +159,7 @@ public class PersistenceTestRunner implements TestRunner
                 .enableSchemaEvolution(SCHEMA_EVOLUTION_DEFAULT)
                 .build();
 
-        Datasets datasets = Datasets.of(targetDataset, stagingDataset);
-        IngestorResult result = ingestor.ingest(connection, datasets);
+        IngestorResult result = ingestor.ingest(connection, enrichedDatasets);
         return result;
     }
 

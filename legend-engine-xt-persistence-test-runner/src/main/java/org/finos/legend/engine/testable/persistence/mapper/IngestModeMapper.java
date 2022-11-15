@@ -39,11 +39,11 @@ public class IngestModeMapper
     /*
     Mapper from Persistence model to IngestMode object
      */
-    public static org.finos.legend.engine.persistence.components.ingestmode.IngestMode from(Persistence persistence, Dataset mainDataSet,
-                                                                     Dataset stagingDataset) throws Exception
+    public static org.finos.legend.engine.persistence.components.ingestmode.IngestMode from(Persistence persistence) throws Exception
     {
         IngestMode ingestMode = getIngestMode(persistence);
         IngestModeType mode = getIngestModeName(ingestMode);
+
         switch (mode)
         {
             case NontemporalSnapshot:
@@ -83,7 +83,7 @@ public class IngestModeMapper
         return ingestMode.accept(IngestModeVisitors.EXTRACT_TRANSACTION_MILESTONING_TIME_BASED);
     }
 
-    private static IngestMode getIngestMode(Persistence persistence) throws Exception
+    public static IngestMode getIngestMode(Persistence persistence) throws Exception
     {
         Persister persister = persistence.persister;
         if (persister instanceof BatchPersister)
@@ -94,11 +94,10 @@ public class IngestModeMapper
         throw new Exception("Only BatchPersister has Ingest Mode");
     }
 
-    private static IngestModeType getIngestModeName(IngestMode ingestMode)
+    public static IngestModeType getIngestModeName(IngestMode ingestMode)
     {
         String clazz = ingestMode.getClass().getSimpleName();
         IngestModeType ingestModeType = IngestModeType.valueOf(clazz);
         return ingestModeType;
     }
-
 }
