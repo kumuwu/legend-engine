@@ -54,7 +54,6 @@ public class BulkLoadTest
     private static Field col1 = Field.builder()
             .name("col_int")
             .type(FieldType.of(DataType.INT, Optional.empty(), Optional.empty()))
-            .primaryKey(true)
             .build();
     private static Field col2 = Field.builder()
             .name("col_integer")
@@ -114,7 +113,7 @@ public class BulkLoadTest
         List<String> metadataIngestSql = operations.metadataIngestSql();
         Map<StatisticName, String> statsSql = operations.postIngestStatisticsSql();
 
-        String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS \"my_db\".\"my_name\"(\"col_int\" INTEGER NOT NULL PRIMARY KEY,\"col_integer\" INTEGER,\"batch_id\" VARCHAR,\"append_time\" DATETIME)";
+        String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS \"my_db\".\"my_name\"(\"col_int\" INTEGER,\"col_integer\" INTEGER,\"batch_id\" VARCHAR,\"append_time\" DATETIME)";
         String expectedIngestSql = "COPY INTO \"my_db\".\"my_name\" " +
                 "(\"col_int\", \"col_integer\", \"batch_id\", \"append_time\") " +
                 "FROM " +
@@ -234,7 +233,7 @@ public class BulkLoadTest
             uuid = matcher.group();
         }
 
-        String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS \"MY_DB\".\"MY_NAME\"(\"COL_INT\" INTEGER NOT NULL PRIMARY KEY," +
+        String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS \"MY_DB\".\"MY_NAME\"(\"COL_INT\" INTEGER," +
                 "\"COL_INTEGER\" INTEGER,\"DIGEST\" VARCHAR,\"BATCH_ID\" VARCHAR,\"APPEND_TIME\" DATETIME)";
         String expectedIngestSql = "COPY INTO \"MY_DB\".\"MY_NAME\" " +
                 "(\"COL_INT\", \"COL_INTEGER\", \"DIGEST\", \"BATCH_ID\", \"APPEND_TIME\") " +
@@ -366,7 +365,7 @@ public class BulkLoadTest
         List<String> ingestSql = operations.ingestSql();
         Map<StatisticName, String> statsSql = operations.postIngestStatisticsSql();
 
-        String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS \"my_db\".\"my_name\"(\"col_int\" INTEGER NOT NULL PRIMARY KEY,\"col_integer\" INTEGER,\"digest\" VARCHAR,\"batch_id\" VARCHAR,\"append_time\" DATETIME)";
+        String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS \"my_db\".\"my_name\"(\"col_int\" INTEGER,\"col_integer\" INTEGER,\"digest\" VARCHAR,\"batch_id\" VARCHAR,\"append_time\" DATETIME)";
 
         String expectedIngestSql = "COPY INTO \"my_db\".\"my_name\" " +
                 "(\"col_int\", \"col_integer\", \"digest\", \"batch_id\", \"append_time\") " +

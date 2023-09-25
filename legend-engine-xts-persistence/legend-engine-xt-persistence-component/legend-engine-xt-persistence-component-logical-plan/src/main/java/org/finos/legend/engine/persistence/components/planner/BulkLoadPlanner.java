@@ -27,6 +27,7 @@ import org.finos.legend.engine.persistence.components.ingestmode.digest.UDFBased
 import org.finos.legend.engine.persistence.components.logicalplan.LogicalPlan;
 import org.finos.legend.engine.persistence.components.logicalplan.conditions.Equals;
 import org.finos.legend.engine.persistence.components.logicalplan.datasets.DatasetDefinition;
+import org.finos.legend.engine.persistence.components.logicalplan.datasets.Field;
 import org.finos.legend.engine.persistence.components.logicalplan.datasets.StagedFilesSelection;
 import org.finos.legend.engine.persistence.components.logicalplan.operations.Delete;
 import org.finos.legend.engine.persistence.components.logicalplan.operations.Drop;
@@ -73,6 +74,7 @@ class BulkLoadPlanner extends Planner
         super(datasets, ingestMode, plannerOptions, capabilities);
 
         // validation
+        validateNoPrimaryKeysInStageAndMain();
         if (!(datasets.stagingDataset() instanceof StagedFilesDataset))
         {
             throw new IllegalArgumentException("Only StagedFilesDataset are allowed under Bulk Load");
@@ -92,6 +94,15 @@ class BulkLoadPlanner extends Planner
                 .alias(TEMP_DATASET_BASE_NAME)
                 .build());
         }
+    }
+
+    private void validateNoPrimaryKeysInStageAndMain()
+    {
+        List<String> primaryKeysFromMain = mainDataset().schema().fields().stream().filter(Field::primaryKey).map(Field::name).collect(Collectors.toList());
+        validatePrimaryKeysIsEmpty(primaryKeysFromMain);
+
+        List<String> primaryKeysFromStage = stagingDataset().schema().fields().stream().filter(Field::primaryKey).map(Field::name).collect(Collectors.toList());
+        validatePrimaryKeysIsEmpty(primaryKeysFromStage);
     }
 
     @Override

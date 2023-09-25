@@ -73,7 +73,6 @@ public class BulkLoadTest extends BaseTest
     private static Field col1 = Field.builder()
             .name(col_int)
             .type(FieldType.of(DataType.INT, Optional.empty(), Optional.empty()))
-            .primaryKey(true)
             .build();
     private static Field col2 = Field.builder()
             .name(col_string)
@@ -133,7 +132,7 @@ public class BulkLoadTest extends BaseTest
         Map<StatisticName, String> statsSql = operations.postIngestStatisticsSql();
 
         String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS \"TEST_DB\".\"TEST\".\"main\"" +
-            "(\"col_int\" INTEGER NOT NULL PRIMARY KEY,\"col_string\" VARCHAR,\"col_decimal\" DECIMAL(5,2),\"col_datetime\" TIMESTAMP,\"batch_id\" VARCHAR,\"append_time\" TIMESTAMP)";
+            "(\"col_int\" INTEGER,\"col_string\" VARCHAR,\"col_decimal\" DECIMAL(5,2),\"col_datetime\" TIMESTAMP,\"batch_id\" VARCHAR,\"append_time\" TIMESTAMP)";
 
         String expectedIngestSql = "INSERT INTO \"TEST_DB\".\"TEST\".\"main\" " +
                 "(\"col_int\", \"col_string\", \"col_decimal\", \"col_datetime\", \"batch_id\", \"append_time\") " +
@@ -206,7 +205,7 @@ public class BulkLoadTest extends BaseTest
         Map<StatisticName, String> statsSql = operations.postIngestStatisticsSql();
 
         String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS \"TEST_DB\".\"TEST\".\"main\"" +
-            "(\"col_int\" INTEGER NOT NULL PRIMARY KEY,\"col_string\" VARCHAR,\"col_decimal\" DECIMAL(5,2),\"col_datetime\" TIMESTAMP,\"batch_id\" VARCHAR)";
+            "(\"col_int\" INTEGER,\"col_string\" VARCHAR,\"col_decimal\" DECIMAL(5,2),\"col_datetime\" TIMESTAMP,\"batch_id\" VARCHAR)";
 
         String expectedIngestSql = "INSERT INTO \"TEST_DB\".\"TEST\".\"main\" " +
                 "(\"col_int\", \"col_string\", \"col_decimal\", \"col_datetime\", \"batch_id\") " +
@@ -279,7 +278,7 @@ public class BulkLoadTest extends BaseTest
         Map<StatisticName, String> statsSql = operations.postIngestStatisticsSql();
 
         String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS \"TEST_DB\".\"TEST\".\"main\"" +
-            "(\"col_int\" INTEGER NOT NULL PRIMARY KEY,\"col_string\" VARCHAR,\"col_decimal\" DECIMAL(5,2),\"col_datetime\" TIMESTAMP,\"digest\" VARCHAR,\"batch_id\" VARCHAR,\"append_time\" TIMESTAMP)";
+            "(\"col_int\" INTEGER,\"col_string\" VARCHAR,\"col_decimal\" DECIMAL(5,2),\"col_datetime\" TIMESTAMP,\"digest\" VARCHAR,\"batch_id\" VARCHAR,\"append_time\" TIMESTAMP)";
 
         String expectedIngestSql = "INSERT INTO \"TEST_DB\".\"TEST\".\"main\" " +
                 "(\"col_int\", \"col_string\", \"col_decimal\", \"col_datetime\", \"digest\", \"batch_id\", \"append_time\") " +
@@ -355,7 +354,7 @@ public class BulkLoadTest extends BaseTest
         Map<StatisticName, String> statsSql = operations.postIngestStatisticsSql();
 
         String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS \"TEST_DB\".\"TEST\".\"MAIN\"" +
-            "(\"COL_INT\" INTEGER NOT NULL PRIMARY KEY,\"COL_STRING\" VARCHAR,\"COL_DECIMAL\" DECIMAL(5,2),\"COL_DATETIME\" TIMESTAMP,\"DIGEST\" VARCHAR,\"BATCH_ID\" VARCHAR,\"APPEND_TIME\" TIMESTAMP)";
+            "(\"COL_INT\" INTEGER,\"COL_STRING\" VARCHAR,\"COL_DECIMAL\" DECIMAL(5,2),\"COL_DATETIME\" TIMESTAMP,\"DIGEST\" VARCHAR,\"BATCH_ID\" VARCHAR,\"APPEND_TIME\" TIMESTAMP)";
 
         String expectedIngestSql = "INSERT INTO \"TEST_DB\".\"TEST\".\"MAIN\" " +
                 "(\"COL_INT\", \"COL_STRING\", \"COL_DECIMAL\", \"COL_DATETIME\", \"DIGEST\", \"BATCH_ID\", \"APPEND_TIME\") " +
@@ -457,6 +456,100 @@ public class BulkLoadTest extends BaseTest
         catch (Exception e)
         {
             Assertions.assertTrue(e.getMessage().contains("Only StagedFilesDataset are allowed under Bulk Load"));
+        }
+    }
+
+    @Test
+    public void testBulkLoadStageHasPrimaryKey()
+    {
+        try
+        {
+            Field pkCol = Field.builder()
+                .name("some_pk")
+                .type(FieldType.of(DataType.INT, Optional.empty(), Optional.empty()))
+                .primaryKey(true)
+                .build();
+
+            BulkLoad bulkLoad = BulkLoad.builder()
+                .batchIdField(BATCH_ID)
+                .digestGenStrategy(NoDigestGenStrategy.builder().build())
+                .auditing(NoAuditing.builder().build())
+                .build();
+
+            Dataset stagedFilesDataset = StagedFilesDataset.builder()
+                .stagedFilesDatasetProperties(
+                    H2StagedFilesDatasetProperties.builder()
+                        .fileFormat(CsvFileFormat.builder().build())
+                        .addAllFiles(Collections.singletonList("src/test/resources/data/bulk-load/input/staged_file1.csv")).build())
+                .schema(SchemaDefinition.builder().addAllFields(Arrays.asList(col1, col2, col3, col4, pkCol)).build())
+                .build();
+
+            Dataset mainDataset = DatasetDefinition.builder()
+                .database("my_db").name("my_name").alias("my_alias")
+                .schema(SchemaDefinition.builder().build())
+                .build();
+
+            RelationalGenerator generator = RelationalGenerator.builder()
+                .ingestMode(bulkLoad)
+                .relationalSink(H2Sink.get())
+                .bulkLoadBatchIdValue(BATCH_ID_VALUE)
+                .collectStatistics(true)
+                .executionTimestampClock(fixedClock_2000_01_01)
+                .build();
+
+            GeneratorResult operations = generator.generateOperations(Datasets.of(mainDataset, stagedFilesDataset));
+            Assertions.fail("Exception was not thrown");
+        }
+        catch (Exception e)
+        {
+            Assertions.assertTrue(e.getMessage().contains("Primary key list must be empty"));
+        }
+    }
+
+    @Test
+    public void testBulkLoadMainHasPrimaryKey()
+    {
+        try
+        {
+            Field pkCol = Field.builder()
+                .name("some_pk")
+                .type(FieldType.of(DataType.INT, Optional.empty(), Optional.empty()))
+                .primaryKey(true)
+                .build();
+
+            BulkLoad bulkLoad = BulkLoad.builder()
+                .batchIdField(BATCH_ID)
+                .digestGenStrategy(NoDigestGenStrategy.builder().build())
+                .auditing(NoAuditing.builder().build())
+                .build();
+
+            Dataset stagedFilesDataset = StagedFilesDataset.builder()
+                .stagedFilesDatasetProperties(
+                    H2StagedFilesDatasetProperties.builder()
+                        .fileFormat(CsvFileFormat.builder().build())
+                        .addAllFiles(Collections.singletonList("src/test/resources/data/bulk-load/input/staged_file1.csv")).build())
+                .schema(SchemaDefinition.builder().addAllFields(Arrays.asList(col1, col2, col3, col4)).build())
+                .build();
+
+            Dataset mainDataset = DatasetDefinition.builder()
+                .database("my_db").name("my_name").alias("my_alias")
+                .schema(SchemaDefinition.builder().addAllFields(Arrays.asList(col1, col2, col3, col4, pkCol)).build())
+                .build();
+
+            RelationalGenerator generator = RelationalGenerator.builder()
+                .ingestMode(bulkLoad)
+                .relationalSink(H2Sink.get())
+                .bulkLoadBatchIdValue(BATCH_ID_VALUE)
+                .collectStatistics(true)
+                .executionTimestampClock(fixedClock_2000_01_01)
+                .build();
+
+            GeneratorResult operations = generator.generateOperations(Datasets.of(mainDataset, stagedFilesDataset));
+            Assertions.fail("Exception was not thrown");
+        }
+        catch (Exception e)
+        {
+            Assertions.assertTrue(e.getMessage().contains("Primary key list must be empty"));
         }
     }
 

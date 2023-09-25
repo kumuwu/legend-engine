@@ -66,7 +66,6 @@ public class BulkLoadTest
     private static Field col1 = Field.builder()
         .name(col_int)
         .type(FieldType.of(DataType.INT, Optional.empty(), Optional.empty()))
-        .primaryKey(true)
         .build();
     private static Field col2 = Field.builder()
         .name(col_string)
@@ -128,7 +127,7 @@ public class BulkLoadTest
         Map<StatisticName, String> statsSql = operations.postIngestStatisticsSql();
 
         String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS `my_db`.`my_name`" +
-            "(`col_int` INT64 NOT NULL PRIMARY KEY NOT ENFORCED,`col_string` STRING,`col_decimal` NUMERIC(5,2),`col_datetime` DATETIME,`col_variant` JSON,`batch_id` STRING,`append_time` DATETIME)";
+            "(`col_int` INT64,`col_string` STRING,`col_decimal` NUMERIC(5,2),`col_datetime` DATETIME,`col_variant` JSON,`batch_id` STRING,`append_time` DATETIME)";
 
         String expectedCopySql = "LOAD DATA OVERWRITE `my_db`.`my_name_legend_persistence_temp` " +
             "(`col_int` INT64,`col_string` STRING,`col_decimal` NUMERIC(5,2),`col_datetime` DATETIME,`col_variant` JSON) " +
@@ -194,7 +193,7 @@ public class BulkLoadTest
         Map<StatisticName, String> statsSql = operations.postIngestStatisticsSql();
 
         String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS `my_db`.`my_name`" +
-            "(`col_int` INT64 NOT NULL PRIMARY KEY NOT ENFORCED,`col_string` STRING,`col_decimal` NUMERIC(5,2),`col_datetime` DATETIME,`col_variant` JSON,`batch_id` STRING,`append_time` DATETIME)";
+            "(`col_int` INT64,`col_string` STRING,`col_decimal` NUMERIC(5,2),`col_datetime` DATETIME,`col_variant` JSON,`batch_id` STRING,`append_time` DATETIME)";
 
         String expectedCopySql = "LOAD DATA OVERWRITE `my_db`.`my_name_legend_persistence_temp` " +
             "(`col_int` INT64,`col_string` STRING,`col_decimal` NUMERIC(5,2),`col_datetime` DATETIME,`col_variant` JSON) " +
@@ -253,7 +252,7 @@ public class BulkLoadTest
         Map<StatisticName, String> statsSql = operations.postIngestStatisticsSql();
 
         String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS `my_db`.`my_name`" +
-            "(`col_int` INT64 NOT NULL PRIMARY KEY NOT ENFORCED,`col_string` STRING,`col_decimal` NUMERIC(5,2),`col_datetime` DATETIME,`col_variant` JSON,`batch_id` STRING)";
+            "(`col_int` INT64,`col_string` STRING,`col_decimal` NUMERIC(5,2),`col_datetime` DATETIME,`col_variant` JSON,`batch_id` STRING)";
 
         String expectedCopySql = "LOAD DATA OVERWRITE `my_db`.`my_name_legend_persistence_temp` " +
             "(`col_int` INT64,`col_string` STRING,`col_decimal` NUMERIC(5,2),`col_datetime` DATETIME,`col_variant` JSON) " +
@@ -311,7 +310,7 @@ public class BulkLoadTest
         Map<StatisticName, String> statsSql = operations.postIngestStatisticsSql();
 
         String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS `my_db`.`my_name`" +
-            "(`col_int` INT64 NOT NULL PRIMARY KEY NOT ENFORCED,`col_string` STRING,`col_decimal` NUMERIC(5,2),`col_datetime` DATETIME,`col_variant` JSON,`digest` STRING,`batch_id` STRING,`append_time` DATETIME)";
+            "(`col_int` INT64,`col_string` STRING,`col_decimal` NUMERIC(5,2),`col_datetime` DATETIME,`col_variant` JSON,`digest` STRING,`batch_id` STRING,`append_time` DATETIME)";
 
         String expectedCopySql = "LOAD DATA OVERWRITE `my_db`.`my_name_legend_persistence_temp` " +
             "(`col_int` INT64,`col_string` STRING,`col_decimal` NUMERIC(5,2),`col_datetime` DATETIME,`col_variant` JSON) " +
@@ -370,7 +369,7 @@ public class BulkLoadTest
         Map<StatisticName, String> statsSql = operations.postIngestStatisticsSql();
 
         String expectedCreateTableSql = "CREATE TABLE IF NOT EXISTS `MY_DB`.`MY_NAME`" +
-            "(`COL_INT` INT64 NOT NULL PRIMARY KEY NOT ENFORCED,`COL_STRING` STRING,`COL_DECIMAL` NUMERIC(5,2),`COL_DATETIME` DATETIME,`COL_VARIANT` JSON,`DIGEST` STRING,`BATCH_ID` STRING,`APPEND_TIME` DATETIME)";
+            "(`COL_INT` INT64,`COL_STRING` STRING,`COL_DECIMAL` NUMERIC(5,2),`COL_DATETIME` DATETIME,`COL_VARIANT` JSON,`DIGEST` STRING,`BATCH_ID` STRING,`APPEND_TIME` DATETIME)";
 
         String expectedCopySql = "LOAD DATA OVERWRITE `MY_DB`.`MY_NAME_LEGEND_PERSISTENCE_TEMP` " +
             "(`COL_INT` INT64,`COL_STRING` STRING,`COL_DECIMAL` NUMERIC(5,2),`COL_DATETIME` DATETIME,`COL_VARIANT` JSON) " +
