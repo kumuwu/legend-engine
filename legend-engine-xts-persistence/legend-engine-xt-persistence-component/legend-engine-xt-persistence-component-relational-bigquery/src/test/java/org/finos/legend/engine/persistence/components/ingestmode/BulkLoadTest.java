@@ -14,8 +14,9 @@
 
 package org.finos.legend.engine.persistence.components.ingestmode;
 
-import org.finos.legend.engine.persistence.components.common.CsvFileFormat;
 import org.finos.legend.engine.persistence.components.common.Datasets;
+import org.finos.legend.engine.persistence.components.common.FileFormat;
+import org.finos.legend.engine.persistence.components.common.LoadOptions;
 import org.finos.legend.engine.persistence.components.common.StatisticName;
 import org.finos.legend.engine.persistence.components.ingestmode.BulkLoad;
 import org.finos.legend.engine.persistence.components.ingestmode.audit.DateTimeAuditing;
@@ -102,7 +103,7 @@ public class BulkLoadTest
         Dataset stagedFilesDataset = StagedFilesDataset.builder()
             .stagedFilesDatasetProperties(
                 BigQueryStagedFilesDatasetProperties.builder()
-                    .fileFormat(CsvFileFormat.builder().build())
+                    .fileFormat(FileFormat.CSV)
                     .addAllFiles(filesList).build())
             .schema(SchemaDefinition.builder().addAllFields(Arrays.asList(col1, col2, col3, col4, col5)).build())
             .build();
@@ -160,7 +161,8 @@ public class BulkLoadTest
         Dataset stagedFilesDataset = StagedFilesDataset.builder()
             .stagedFilesDatasetProperties(
                 BigQueryStagedFilesDatasetProperties.builder()
-                    .fileFormat(CsvFileFormat.builder()
+                    .fileFormat(FileFormat.CSV)
+                    .loadOptions(LoadOptions.builder()
                         .encoding("UTF8")
                         .maxBadRecords(100L)
                         .nullMarker("NULL")
@@ -227,7 +229,7 @@ public class BulkLoadTest
         Dataset stagedFilesDataset = StagedFilesDataset.builder()
             .stagedFilesDatasetProperties(
                 BigQueryStagedFilesDatasetProperties.builder()
-                    .fileFormat(CsvFileFormat.builder().build())
+                    .fileFormat(FileFormat.CSV)
                     .addAllFiles(filesList).build())
             .schema(SchemaDefinition.builder().addAllFields(Arrays.asList(col1, col2, col3, col4, col5)).build())
             .build();
@@ -285,7 +287,7 @@ public class BulkLoadTest
         Dataset stagedFilesDataset = StagedFilesDataset.builder()
             .stagedFilesDatasetProperties(
                 BigQueryStagedFilesDatasetProperties.builder()
-                    .fileFormat(CsvFileFormat.builder().build())
+                    .fileFormat(FileFormat.CSV)
                     .addAllFiles(filesList).build())
             .schema(SchemaDefinition.builder().addAllFields(Arrays.asList(col1, col2, col3, col4, col5)).build())
             .build();
@@ -343,7 +345,7 @@ public class BulkLoadTest
         Dataset stagedFilesDataset = StagedFilesDataset.builder()
             .stagedFilesDatasetProperties(
                 BigQueryStagedFilesDatasetProperties.builder()
-                    .fileFormat(CsvFileFormat.builder().build())
+                    .fileFormat(FileFormat.CSV)
                     .addAllFiles(filesList).build())
             .schema(SchemaDefinition.builder().addAllFields(Arrays.asList(col1, col2, col3, col4, col5)).build())
             .build();
