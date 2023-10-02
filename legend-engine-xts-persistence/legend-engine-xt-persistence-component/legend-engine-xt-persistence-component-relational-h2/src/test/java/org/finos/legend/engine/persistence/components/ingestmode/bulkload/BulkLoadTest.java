@@ -478,7 +478,7 @@ public class BulkLoadTest extends BaseTest
             Dataset stagedFilesDataset = StagedFilesDataset.builder()
                 .stagedFilesDatasetProperties(
                     H2StagedFilesDatasetProperties.builder()
-                        .fileFormat(CsvFileFormat.builder().build())
+                        .fileFormat(FileFormat.CSV)
                         .addAllFiles(Collections.singletonList("src/test/resources/data/bulk-load/input/staged_file1.csv")).build())
                 .schema(SchemaDefinition.builder().addAllFields(Arrays.asList(col1, col2, col3, col4, pkCol)).build())
                 .build();
@@ -525,7 +525,7 @@ public class BulkLoadTest extends BaseTest
             Dataset stagedFilesDataset = StagedFilesDataset.builder()
                 .stagedFilesDatasetProperties(
                     H2StagedFilesDatasetProperties.builder()
-                        .fileFormat(CsvFileFormat.builder().build())
+                        .fileFormat(FileFormat.CSV)
                         .addAllFiles(Collections.singletonList("src/test/resources/data/bulk-load/input/staged_file1.csv")).build())
                 .schema(SchemaDefinition.builder().addAllFields(Arrays.asList(col1, col2, col3, col4)).build())
                 .build();
