@@ -260,14 +260,24 @@ public class BigQuerySink extends AnsiSqlSink
         BigQueryExecutor bigQueryExecutor = (BigQueryExecutor) executor;
         Map<StatisticName, Object> stats = bigQueryExecutor.executeLoadPhysicalPlanAndGetStats(ingestSqlPlan, placeHolderKeyValues);
 
-        IngestorResult result;
-        result = IngestorResult.builder()
-            .status(IngestStatus.SUCCEEDED)
+        IngestorResult.Builder resultBuilder = IngestorResult.builder()
             .updatedDatasets(datasets)
             .putAllStatisticByName(stats)
-            .ingestionTimestampUTC(placeHolderKeyValues.get(BATCH_START_TS_PATTERN))
-            .build();
+            .ingestionTimestampUTC(placeHolderKeyValues.get(BATCH_START_TS_PATTERN));
+        IngestorResult result;
 
+        if ((long) stats.get(StatisticName.ROWS_WITH_ERRORS) == 0)
+        {
+            result = resultBuilder
+                .status(IngestStatus.SUCCEEDED)
+                .build();
+        }
+        else
+        {
+            result = resultBuilder
+                .status(IngestStatus.FAILED)
+                .build();
+        }
         return result;
     }
 }
