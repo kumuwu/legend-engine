@@ -157,23 +157,23 @@ class BulkLoadPlanner extends Planner
 
 
         // Operation 2: Transfer from temp table into target table, adding extra columns at the same time
-        List<Value> fieldsToSelectFromTemp = new ArrayList<>(tempDataset.schemaReference().fieldValues());
+        List<Value> fieldsToSelect = new ArrayList<>(tempDataset.schemaReference().fieldValues());
         List<Value> fieldsToInsertIntoMain = new ArrayList<>(tempDataset.schemaReference().fieldValues());
 
         // Add digest
-        ingestMode().digestGenStrategy().accept(new DigestGeneration(mainDataset(), tempDataset, fieldsToSelectFromTemp, fieldsToInsertIntoMain));
+        ingestMode().digestGenStrategy().accept(new DigestGeneration(mainDataset(), tempDataset, fieldsToSelect, fieldsToInsertIntoMain));
 
         // Add batch_id field
         fieldsToInsertIntoMain.add(FieldValue.builder().datasetRef(mainDataset().datasetReference()).fieldName(ingestMode().batchIdField()).build());
-        fieldsToSelectFromTemp.add(new BulkLoadMetadataUtils(bulkLoadMetadataDataset).getBatchId(StringValue.of(mainDataset().datasetReference().name().orElseThrow(IllegalStateException::new))));
+        fieldsToSelect.add(new BulkLoadMetadataUtils(bulkLoadMetadataDataset).getBatchId(StringValue.of(mainDataset().datasetReference().name().orElseThrow(IllegalStateException::new))));
 
         // Add auditing
         if (ingestMode().auditing().accept(AUDIT_ENABLED))
         {
-            addAuditing(fieldsToInsertIntoMain, fieldsToSelectFromTemp);
+            addAuditing(fieldsToInsertIntoMain, fieldsToSelect);
         }
 
-        operations.add(Insert.of(mainDataset(), Selection.builder().source(tempDataset).addAllFields(fieldsToSelectFromTemp).build(), fieldsToInsertIntoMain));
+        operations.add(Insert.of(mainDataset(), Selection.builder().source(tempDataset).addAllFields(fieldsToSelect).build(), fieldsToInsertIntoMain));
 
 
         return LogicalPlan.of(operations);
