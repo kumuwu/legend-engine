@@ -203,11 +203,8 @@ class BulkLoadPlanner extends Planner
     @Override
     public LogicalPlan buildLogicalPlanForPostActions(Resources resources)
     {
+        // there is no need to delete from the temp table for big query because we always use "overwrite" when loading
         List<Operation> operations = new ArrayList<>();
-        if (!transformWhileCopy)
-        {
-            operations.add(Delete.builder().dataset(tempDataset).build());
-        }
         return LogicalPlan.of(operations);
     }
 
