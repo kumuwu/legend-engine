@@ -29,7 +29,6 @@ import org.finos.legend.engine.persistence.components.logicalplan.conditions.Equ
 import org.finos.legend.engine.persistence.components.logicalplan.datasets.DatasetDefinition;
 import org.finos.legend.engine.persistence.components.logicalplan.datasets.Field;
 import org.finos.legend.engine.persistence.components.logicalplan.datasets.StagedFilesSelection;
-import org.finos.legend.engine.persistence.components.logicalplan.operations.Delete;
 import org.finos.legend.engine.persistence.components.logicalplan.operations.Drop;
 import org.finos.legend.engine.persistence.components.logicalplan.operations.Insert;
 import org.finos.legend.engine.persistence.components.logicalplan.values.FunctionImpl;
@@ -47,7 +46,6 @@ import org.finos.legend.engine.persistence.components.logicalplan.values.DigestU
 import org.finos.legend.engine.persistence.components.logicalplan.values.Value;
 import org.finos.legend.engine.persistence.components.logicalplan.values.BatchStartTimestamp;
 import org.finos.legend.engine.persistence.components.logicalplan.values.FieldValue;
-import org.finos.legend.engine.persistence.components.logicalplan.values.BulkLoadBatchIdValue;
 import org.finos.legend.engine.persistence.components.util.BulkLoadMetadataDataset;
 import org.finos.legend.engine.persistence.components.util.BulkLoadMetadataUtils;
 import org.finos.legend.engine.persistence.components.util.Capability;
@@ -67,6 +65,7 @@ class BulkLoadPlanner extends Planner
     private Dataset tempDataset;
     private StagedFilesDataset stagedFilesDataset;
     private BulkLoadMetadataDataset bulkLoadMetadataDataset;
+    private Optional<String> bulkLoadTaskIdValue;
 
     BulkLoadPlanner(Datasets datasets, BulkLoad ingestMode, PlannerOptions plannerOptions, Set<Capability> capabilities)
     {
@@ -79,6 +78,7 @@ class BulkLoadPlanner extends Planner
             throw new IllegalArgumentException("Only StagedFilesDataset are allowed under Bulk Load");
         }
 
+        bulkLoadTaskIdValue = plannerOptions.bulkLoadTaskIdValue();
         stagedFilesDataset = (StagedFilesDataset) datasets.stagingDataset();
         bulkLoadMetadataDataset = bulkLoadMetadataDataset().orElseThrow(IllegalStateException::new);
 
@@ -133,7 +133,7 @@ class BulkLoadPlanner extends Planner
 
         // Add batch_id field
         fieldsToInsert.add(FieldValue.builder().datasetRef(mainDataset().datasetReference()).fieldName(ingestMode().batchIdField()).build());
-        fieldsToSelect.add(BulkLoadBatchIdValue.INSTANCE);
+        fieldsToSelect.add(new BulkLoadMetadataUtils(bulkLoadMetadataDataset).getBatchId(StringValue.of(mainDataset().datasetReference().name().orElseThrow(IllegalStateException::new))));
 
         // Add auditing
         if (ingestMode().auditing().accept(AUDIT_ENABLED))
@@ -165,7 +165,7 @@ class BulkLoadPlanner extends Planner
 
         // Add batch_id field
         fieldsToInsertIntoMain.add(FieldValue.builder().datasetRef(mainDataset().datasetReference()).fieldName(ingestMode().batchIdField()).build());
-        fieldsToSelectFromTemp.add(BulkLoadBatchIdValue.INSTANCE);
+        fieldsToSelectFromTemp.add(new BulkLoadMetadataUtils(bulkLoadMetadataDataset).getBatchId(StringValue.of(mainDataset().datasetReference().name().orElseThrow(IllegalStateException::new))));
 
         // Add auditing
         if (ingestMode().auditing().accept(AUDIT_ENABLED))
@@ -259,9 +259,10 @@ class BulkLoadPlanner extends Planner
 
     private String jsonifyBatchSourceInfo(StagedFilesDatasetProperties stagedFilesDatasetProperties)
     {
-        List<String> files = stagedFilesDatasetProperties.files();
         Map<String, Object> batchSourceMap = new HashMap();
+        List<String> files = stagedFilesDatasetProperties.files();
         batchSourceMap.put("files", files);
+        bulkLoadTaskIdValue.ifPresent(taskId -> batchSourceMap.put("task_id", taskId));
         ObjectMapper objectMapper = new ObjectMapper();
         try
         {
