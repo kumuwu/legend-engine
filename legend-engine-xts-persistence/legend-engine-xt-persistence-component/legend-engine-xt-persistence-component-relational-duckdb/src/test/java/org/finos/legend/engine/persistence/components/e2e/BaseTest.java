@@ -823,7 +823,7 @@ public class BaseTest
         Assertions.assertEquals("REAL", getGeneratedSql(mapping.getDataType(colReal.type())));
         Assertions.assertEquals("REAL", getGeneratedSql(mapping.getDataType(colFloat.type())));
         Assertions.assertEquals("DOUBLE", getGeneratedSql(mapping.getDataType(colDouble.type())));
-        Assertions.assertEquals("BLOB", getGeneratedSql(mapping.getDataType(colBinary.type())));
+        Assertions.assertEquals("BINARY", getGeneratedSql(mapping.getDataType(colBinary.type())));
         Assertions.assertEquals("TIME", getGeneratedSql(mapping.getDataType(colTime.type())));
         Assertions.assertEquals("BOOLEAN", getGeneratedSql(mapping.getDataType(colBoolean.type())));
 
