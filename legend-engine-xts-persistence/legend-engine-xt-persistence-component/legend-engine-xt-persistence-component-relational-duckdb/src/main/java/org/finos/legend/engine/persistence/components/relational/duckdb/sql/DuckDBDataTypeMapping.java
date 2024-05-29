@@ -25,6 +25,7 @@ import org.finos.legend.engine.persistence.components.relational.sqldom.schema.D
 import org.finos.legend.engine.persistence.components.relational.sqldom.schema.Decimal;
 import org.finos.legend.engine.persistence.components.relational.sqldom.schema.Double;
 import org.finos.legend.engine.persistence.components.relational.sqldom.schema.Integer;
+import org.finos.legend.engine.persistence.components.relational.sqldom.schema.Json;
 import org.finos.legend.engine.persistence.components.relational.sqldom.schema.Real;
 import org.finos.legend.engine.persistence.components.relational.sqldom.schema.SmallInt;
 import org.finos.legend.engine.persistence.components.relational.sqldom.schema.Time;
@@ -82,6 +83,7 @@ public class DuckDBDataTypeMapping implements DataTypeMapping
             case TIMESTAMP_TZ:
                 dataType = new TimestampWithTimezone();
                 break;
+            case TIMESTAMP_NTZ:
             case TIMESTAMP:
             case DATETIME:
                 dataType = new Timestamp();
@@ -95,15 +97,16 @@ public class DuckDBDataTypeMapping implements DataTypeMapping
             case TEXT:
                 dataType = new VarChar();
                 break;
+            case JSON:
+                dataType = new Json();
+                break;
             case MAP: // todo (kminky): TBD
             case ARRAY: // todo (kminky): TBD
             case LONGVARCHAR:
             case LONGTEXT:
-            case TIMESTAMP_NTZ:
             case TIMESTAMP_LTZ:
             case BYTES:
             case LONGVARBINARY:
-            case JSON:
             case VARIANT:
             default:
                 throw new IllegalArgumentException("Unexpected value: " + type.dataType());
